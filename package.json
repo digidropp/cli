@@ -1,0 +1,23 @@
+{
+  "name": "digidropp",
+  "version": "0.1.0",
+  "description": "Build your Android app and get an install link + QR code from the terminal",
+  "type": "module",
+  "bin": {
+    "digidropp": "src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "build": "sh scripts/build.sh"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "qrcode": "1.5.4"
+  }
+}

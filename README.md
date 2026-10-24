@@ -14,13 +14,13 @@ it in `~/.digidropp/bin`, and adds that folder to your PATH.
 
 ```bash
 digidropp login                      # once: paste a token from Digidropp → CI & tokens
-digidropp                            # in your app's folder: build, upload, print link + QR code
+digidropp deploy                     # in your app's folder: build, upload, print link + QR code
 digidropp upload app-release.apk     # upload a build you made yourself (.apk or .ipa)
 digidropp apps                       # list your apps and install links
-digidropp -m "Fixed checkout"        # add release notes
+digidropp deploy -m "Fixed checkout" # with release notes for testers
 ```
 
-`digidropp` detects the project and builds it with your own tools:
+`digidropp deploy` (or just `digidropp`) detects the project and builds it with your own tools:
 
 | Project | Build command |
 |---|---|

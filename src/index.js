@@ -8,7 +8,7 @@ import { clearConfig, configPath, DEFAULT_API_URL, loadConfig, saveConfig } from
 import { detectProject, findApk, gitInfo, runSteps } from "./project.js";
 
 // Keep in step with package.json; the release workflow checks both against the tag.
-const VERSION = "0.1.0";
+const VERSION = "0.1.1";
 const DASHBOARD_TOKENS_URL = "https://digidropp.online/dashboard/settings";
 
 // ── Output ────────────────────────────────────────────────────────────
@@ -30,8 +30,8 @@ class CliError extends Error {}
 const HELP = `
 ${bold("digidropp")} ${dim(`v${VERSION}`)}: build your app and get an install link + QR code
 
-${bold("Usage")}
-  digidropp                     Build the app in this folder and upload it
+${bold("Commands")}
+  digidropp deploy              Build the app in this folder and upload it (same as just: digidropp)
   digidropp upload <file>       Upload an .apk or .ipa you already built
   digidropp apps                List your apps and their install links
   digidropp login               Save your upload token
@@ -41,10 +41,18 @@ ${bold("Options")}
   -m, --notes <text>            Release notes shown to testers
   -d, --dir <folder>            App folder (default: current folder)
   -v, --version                 Show the version
+  -h, --help                    Show this help
+
+${bold("Examples")}
+  digidropp deploy -m "Fixed checkout"
+  digidropp deploy -d apps/mobile
+  digidropp upload build/app/outputs/flutter-apk/app-release.apk -m "Hotfix"
 
 ${bold("Environment")}
   DIGIDROPP_TOKEN               Upload token (instead of logging in), for CI and AI agents
   DIGIDROPP_API_URL             API URL (default: ${DEFAULT_API_URL})
+
+Docs: https://digidropp.online/docs#cli
 `;
 
 // ── Arguments ─────────────────────────────────────────────────────────

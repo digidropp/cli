@@ -17,7 +17,8 @@ digidropp login                      # once: paste a token from Digidropp → CI
 digidropp deploy                     # in your app's folder: build, upload, print link + QR code
 digidropp upload app-release.apk     # upload a build you made yourself (.apk or .ipa)
 digidropp apps                       # list your apps and install links
-digidropp deploy -m "Fixed checkout" # with release notes for testers
+digidropp deploy -m "Fixed checkout" # with release notes (default: your last commit message)
+digidropp deploy --main              # from a feature branch, also update the main install link
 ```
 
 `digidropp deploy` (or just `digidropp`) detects the project and builds it with your own tools:

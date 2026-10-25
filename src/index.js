@@ -5,7 +5,7 @@ import path from "node:path";
 import readline from "node:readline/promises";
 import QRCode from "qrcode";
 import { clearConfig, configPath, DEFAULT_API_URL, loadConfig, saveConfig } from "./config.js";
-import { detectProject, findApk, gitInfo, runSteps } from "./project.js";
+import { detectProject, findApk, gitInfo, isMainBranch, runSteps } from "./project.js";
 
 // Keep in step with package.json; the release workflow checks both against the tag.
 const VERSION = "0.1.1";
@@ -40,6 +40,7 @@ ${bold("Commands")}
 ${bold("Options")}
   -m, --notes <text>            Release notes shown to testers (default: your last commit message)
   -d, --dir <folder>            App folder (default: current folder)
+      --main                    Update the main install link even from a feature branch
   -v, --version                 Show the version
   -h, --help                    Show this help
 
@@ -63,6 +64,7 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "-m" || arg === "--notes") opts.notes = argv[++i];
     else if (arg === "-d" || arg === "--dir") opts.dir = argv[++i];
+    else if (arg === "--main") opts.main = true;
     else if (arg === "-v" || arg === "--version") opts.version = true;
     else if (arg === "-h" || arg === "--help") opts.help = true;
     else if (arg.startsWith("-")) throw new CliError(`Unknown option ${arg}. Run digidropp --help.`);
@@ -140,15 +142,20 @@ async function upload(file, opts, git = {}) {
   // Without -m, testers see the last commit message, so they know what changed without asking.
   const notes = opts.notes ?? git.message;
   if (notes) form.append("releaseNotes", notes);
+  // From a feature branch, the build goes to that branch's link and leaves the main install link alone.
+  const branchBuild = !opts.main && !isMainBranch(git);
+  if (branchBuild) form.append("branchBuild", "true");
   if (git.branch && git.branch !== "HEAD") form.append("branch", git.branch);
   if (git.commit) form.append("commit", git.commit);
 
   const { project, build, links } = await api(config, "/builds", { method: "POST", body: form });
   ok(`Uploaded ${bold(project.name)} ${build.versionName || ""} (${build.buildVersion}) as build #${build.buildNumber}`);
   printWarnings(build.warnings);
-  await printLink(links.install);
-  if (links.branch && git.branch && !["main", "master", "HEAD"].includes(git.branch)) {
-    console.log(`  ${dim(`Newest build from ${git.branch}, always:`)} ${cyan(links.branch)}\n`);
+  if (branchBuild && links.branch) {
+    console.log(dim(`  Built from branch ${git.branch}, so your main install link is unchanged (use --main to update it).`));
+    await printLink(links.branch, `Install (newest build from ${git.branch}):`);
+  } else {
+    await printLink(links.install);
   }
 }
 
@@ -180,8 +187,8 @@ function printWarnings(warnings = []) {
   }
 }
 
-async function printLink(url) {
-  console.log(`\n  ${bold("Install:")} ${cyan(url)}\n`);
+async function printLink(url, label = "Install:") {
+  console.log(`\n  ${bold(label)} ${cyan(url)}\n`);
   if (process.stdout.isTTY) {
     const qr = await QRCode.toString(url, { type: "terminal", small: true });
     console.log(qr.replace(/^/gm, "  "));

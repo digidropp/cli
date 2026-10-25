@@ -107,5 +107,14 @@ export function gitInfo(dir) {
     branch: run(["rev-parse", "--abbrev-ref", "HEAD"]),
     commit: run(["rev-parse", "HEAD"]),
     message: run(["log", "-1", "--pretty=%B"])?.slice(0, 2000),
+    // The remote's default branch (e.g. "develop"), when the clone knows it.
+    defaultBranch: run(["symbolic-ref", "--short", "refs/remotes/origin/HEAD"])?.replace(/^origin\//, ""),
   };
+}
+
+// Whether an upload from this checkout should update the app's main install link: true on the default branch (or
+// main/master), outside git, or on a detached HEAD.
+export function isMainBranch(git) {
+  if (!git.branch || git.branch === "HEAD") return true;
+  return [git.defaultBranch, "main", "master"].includes(git.branch);
 }

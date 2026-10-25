@@ -1,6 +1,6 @@
 {
   "name": "digidropp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Build your Android app and get an install link + QR code from the terminal",
   "type": "module",
   "bin": {

@@ -8,7 +8,7 @@ import { clearConfig, configPath, DEFAULT_API_URL, loadConfig, saveConfig } from
 import { detectProject, findApk, gitInfo, isMainBranch, runSteps } from "./project.js";
 
 // Keep in step with package.json; the release workflow checks both against the tag.
-const VERSION = "0.1.1";
+const VERSION = "0.1.2";
 const DASHBOARD_TOKENS_URL = "https://digidropp.online/dashboard/settings";
 
 // ── Output ────────────────────────────────────────────────────────────

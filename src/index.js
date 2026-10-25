@@ -38,7 +38,7 @@ ${bold("Commands")}
   digidropp logout              Remove the saved token
 
 ${bold("Options")}
-  -m, --notes <text>            Release notes shown to testers
+  -m, --notes <text>            Release notes shown to testers (default: your last commit message)
   -d, --dir <folder>            App folder (default: current folder)
   -v, --version                 Show the version
   -h, --help                    Show this help
@@ -137,7 +137,9 @@ async function upload(file, opts, git = {}) {
   const blob = fs.openAsBlob ? await fs.openAsBlob(full) : new Blob([fs.readFileSync(full)]);
   const form = new FormData();
   form.append("file", blob, path.basename(full));
-  if (opts.notes) form.append("releaseNotes", opts.notes);
+  // Without -m, testers see the last commit message, so they know what changed without asking.
+  const notes = opts.notes ?? git.message;
+  if (notes) form.append("releaseNotes", notes);
   if (git.branch && git.branch !== "HEAD") form.append("branch", git.branch);
   if (git.commit) form.append("commit", git.commit);
 
@@ -145,6 +147,9 @@ async function upload(file, opts, git = {}) {
   ok(`Uploaded ${bold(project.name)} ${build.versionName || ""} (${build.buildVersion}) as build #${build.buildNumber}`);
   printWarnings(build.warnings);
   await printLink(links.install);
+  if (links.branch && git.branch && !["main", "master", "HEAD"].includes(git.branch)) {
+    console.log(`  ${dim(`Newest build from ${git.branch}, always:`)} ${cyan(links.branch)}\n`);
+  }
 }
 
 async function buildAndUpload(opts) {

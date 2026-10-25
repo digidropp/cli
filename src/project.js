@@ -96,11 +96,16 @@ export function findApk(dir, since = 0) {
   return best?.file || null;
 }
 
-// Branch and commit of the current checkout, so builds show where they came from. Empty outside git.
+// Branch, commit and last commit message of the current checkout, so builds show where they came from and what
+// changed. Empty outside git.
 export function gitInfo(dir) {
   const run = (args) => {
     const r = spawnSync("git", args, { cwd: dir, encoding: "utf8" });
     return r.status === 0 ? r.stdout.trim() : undefined;
   };
-  return { branch: run(["rev-parse", "--abbrev-ref", "HEAD"]), commit: run(["rev-parse", "HEAD"]) };
+  return {
+    branch: run(["rev-parse", "--abbrev-ref", "HEAD"]),
+    commit: run(["rev-parse", "HEAD"]),
+    message: run(["log", "-1", "--pretty=%B"])?.slice(0, 2000),
+  };
 }

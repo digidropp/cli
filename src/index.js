@@ -106,7 +106,7 @@ async function login() {
   if (!token.startsWith("dd_")) throw new CliError("That doesn't look like a Digidropp token. Tokens start with dd_.");
 
   const config = { ...loadConfig(), token };
-  await api(config, "/projects"); // fails with a clear message if the token is wrong
+  await api(config, "/tokens/current"); // fails with a clear message if the token is wrong or expired
   saveConfig({ token });
   ok(`Logged in. Token saved to ${dim(configPath())}`);
 }
